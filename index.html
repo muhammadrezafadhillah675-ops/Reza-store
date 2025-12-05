@@ -1,0 +1,3390 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Beast E-Commerce: Developer Edition</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+    <style>
+      /* ========================================================================= */
+      /* --- 1. Variable & Base Styles --- */
+      /* ========================================================================= */
+      :root {
+        --primary-yellow: #ffc300;
+        --secondary-blue: #007bff;
+        --text-white: #e0e0e0;
+        --text-gray: #aaaaaa;
+        --bg-dark: #1e1e1e;
+        --bg-light-dark: #2a2a2a;
+        --bg-modal: #333333;
+        --error-red: #e74c3c;
+        --success-green: #2ecc71;
+        --role-developer-bg: #8e44ad;
+        --role-seller-bg: #e67e22;
+        --border-radius-base: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: var(--bg-dark);
+        color: var(--text-white);
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        user-select: none;
+        /* Membatasi lebar maksimum untuk tampilan seperti mobile app */
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      button,
+      input[type="submit"] {
+        cursor: pointer;
+        transition: opacity 0.2s;
+      }
+      button:hover,
+      input[type="submit"]:hover {
+        opacity: 0.9;
+      }
+
+      /* ========================================================================= */
+      /* --- 2. Authentication & General UI Components --- */
+      /* ========================================================================= */
+      #auth-screen {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: var(--bg-dark);
+      }
+
+      .auth-container {
+        background-color: var(--bg-light-dark);
+        padding: 40px;
+        border-radius: var(--border-radius-base);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        width: 90%;
+        max-width: 400px;
+      }
+
+      .input-group input,
+      .search-container input,
+      .modal-content input,
+      .modal-content select,
+      .modal-content textarea,
+      .chat-input-container input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #444;
+        background-color: #333;
+        color: var(--text-white);
+        border-radius: var(--border-radius-base);
+        box-sizing: border-box;
+        font-size: 16px;
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--primary-yellow);
+        color: var(--bg-dark);
+        border: none;
+        border-radius: var(--border-radius-base);
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+      }
+
+      #home-screen {
+        min-height: 100vh;
+        padding-bottom: 70px;
+        display: none;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      /* --- Header & Search --- */
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background-color: var(--bg-light-dark);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .search-container {
+        padding: 15px 20px 10px 20px;
+        background-color: var(--bg-dark);
+        position: sticky;
+        top: 60px; /* Di bawah header */
+        z-index: 9;
+      }
+
+      /* ========================================================================= */
+      /* --- 3. Categories & Product Grid --- */
+      /* ========================================================================= */
+      .categories-container {
+        padding: 10px 20px;
+        display: flex;
+        overflow-x: auto;
+        gap: 15px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      .categories-container::-webkit-scrollbar {
+        display: none;
+      }
+
+      .category-item {
+        min-width: 60px;
+      }
+
+      .product-list {
+        padding: 15px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+      }
+
+      .product-card {
+        background-color: var(--bg-light-dark);
+        border-radius: var(--border-radius-base);
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      .product-card:active {
+        transform: scale(0.98);
+      }
+
+      .product-image {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+      }
+
+      .product-info {
+        padding: 10px;
+      }
+
+      /* ========================================================================= */
+      /* --- 4. Navigation Bar (Footer) --- */
+      /* ========================================================================= */
+      .navbar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: var(--bg-light-dark);
+        display: flex;
+        justify-content: space-around;
+        padding: 10px 0;
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+        z-index: 100;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .nav-count {
+        /* Pastikan badge terlihat di atas ikon keranjang */
+        z-index: 101;
+      }
+
+      /* ========================================================================= */
+      /* --- 5. Universal Screens (Detail, Profile, Dashboard) --- */
+      /* ========================================================================= */
+      .universal-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--bg-dark);
+        z-index: 500;
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        display: none;
+        max-width: 600px;
+        margin: 0 auto;
+        overflow-y: auto;
+      }
+      .universal-screen.active {
+        transform: translateX(0);
+      }
+
+      .screen-header {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        background-color: var(--bg-light-dark);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      /* Detail Screen Footer (Buy/Cart) */
+      .detail-footer {
+        display: flex;
+        gap: 10px;
+        padding: 15px 20px;
+        background-color: var(--bg-light-dark);
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        max-width: 600px;
+        box-sizing: border-box;
+        z-index: 501; /* Di atas navbar utama tapi di bawah modal */
+      }
+
+      /* Profile & Dashboard Menu */
+      .profile-menu-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        background-color: var(--bg-light-dark);
+        margin-bottom: 1px;
+        cursor: pointer;
+      }
+
+      .dashboard-product-list {
+        padding: 10px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      /* ========================================================================= */
+      /* --- 6. Modal Styles (Pop-up windows) --- */
+      /* ========================================================================= */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .modal-content {
+        background-color: var(--bg-modal);
+        padding: 25px;
+        border-radius: var(--border-radius-base);
+        width: 90%;
+        max-width: 450px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      /* Cart Modal */
+      #cart-modal {
+        height: 80vh; /* Responsive height */
+        transform: translateY(100%);
+        bottom: 0;
+        top: auto;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--bg-modal);
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+        box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.5);
+        z-index: 900;
+        max-width: 600px;
+      }
+      #cart-modal.open {
+        transform: translateY(0);
+      }
+
+      #cart-items-list {
+        padding: 10px 20px;
+        overflow-y: auto;
+        flex-grow: 1;
+      }
+
+      /* Chat Modal */
+      #chat-modal {
+        display: none;
+        flex-direction: column;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      #chat-window {
+        flex-grow: 1;
+        padding: 15px;
+        overflow-y: auto;
+        background-color: var(--bg-dark);
+      }
+
+      /* ========================================================================= */
+      /* --- 7. Responsive Adjustments (Media Queries) --- */
+      /* ========================================================================= */
+
+      /* Untuk layar yang sangat kecil (lebar < 320px) */
+      @media (max-width: 320px) {
+        .product-list {
+          grid-template-columns: 1fr; /* Tampilkan satu kolom saja */
+          gap: 10px;
+        }
+        .product-image {
+          height: 120px;
+        }
+        .product-title {
+          font-size: 13px;
+          height: auto;
+        }
+        .product-price-current {
+          font-size: 14px;
+        }
+        .nav-item i {
+          font-size: 16px;
+        }
+        .nav-item span {
+          font-size: 10px;
+        }
+      }
+
+      /* Untuk tampilan tablet (lebar > 600px, meski body max-width 600px) */
+      @media (min-width: 601px) {
+        body {
+          border-left: 1px solid #444;
+          border-right: 1px solid #444;
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        .universal-screen,
+        .navbar,
+        #cart-modal {
+          border-left: 1px solid #444;
+          border-right: 1px solid #444;
+        }
+      }
+
+      /* Tambahkan CSS yang sudah ada di sini */
+      /* (Menggunakan ulang CSS yang sudah ada sebelumnya) */
+
+      /* --- Re-inserting existing CSS for completeness and functionality --- */
+      .auth-container h1 {
+        color: var(--primary-yellow);
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .input-group {
+        margin-bottom: 15px;
+      }
+      .input-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        font-size: 14px;
+      }
+      #login-error,
+      #signup-error,
+      #seller-reg-error {
+        color: var(--error-red);
+        text-align: center;
+        margin-top: 10px;
+        font-size: 14px;
+        display: none;
+      }
+      .switch-auth {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+      }
+      .switch-auth button {
+        background: none;
+        border: none;
+        color: var(--secondary-blue);
+        cursor: pointer;
+        text-decoration: underline;
+        padding: 0;
+        margin-left: 5px;
+      }
+      #signup-form {
+        display: none;
+      }
+      header .logo {
+        font-size: 24px;
+        font-weight: bold;
+        color: var(--primary-yellow);
+      }
+      header .user-info {
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        cursor: pointer;
+        position: relative;
+      }
+      .notification-box {
+        position: absolute;
+        top: -5px;
+        right: -10px;
+        background: var(--error-red);
+        color: white;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 10px;
+        font-weight: bold;
+        display: none;
+      }
+      .category-icon {
+        background-color: #333;
+        color: var(--primary-yellow);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 5px;
+      }
+      .category-item span {
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      .category-item:hover,
+      .category-item.active {
+        background-color: var(--bg-light-dark);
+      }
+      .product-image-container {
+        position: relative;
+      }
+      .discount-badge {
+        position: absolute;
+        bottom: 5px;
+        left: 5px;
+        background-color: var(--error-red);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: bold;
+      }
+      .product-price-current {
+        color: var(--primary-yellow);
+        font-weight: bold;
+        font-size: 16px;
+      }
+      .product-price-original {
+        color: var(--text-gray);
+        text-decoration: line-through;
+        font-size: 11px;
+        margin-left: 5px;
+      }
+      .product-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 5px;
+        font-size: 12px;
+      }
+      .product-rating .fa-star,
+      .product-rating .fa-regular {
+        color: var(--primary-yellow);
+        font-size: 10px;
+      }
+      .nav-item {
+        text-align: center;
+        color: var(--text-gray);
+        cursor: pointer;
+        transition: color 0.3s;
+        position: relative;
+      }
+      .nav-item.active {
+        color: var(--primary-yellow);
+      }
+      .nav-item i {
+        font-size: 20px;
+        margin-bottom: 3px;
+      }
+      .screen-header i {
+        font-size: 20px;
+        cursor: pointer;
+      }
+      .screen-header h2 {
+        flex-grow: 1;
+        text-align: center;
+        margin: 0;
+        font-size: 18px;
+        color: var(--primary-yellow);
+      }
+      .screen-content {
+        padding: 20px;
+      }
+      .btn-buy-now {
+        background: var(--success-green);
+        flex: 1;
+      }
+      .btn-add-cart {
+        background: var(--secondary-blue);
+        flex: 1;
+        position: relative;
+      }
+      .profile-header {
+        text-align: center;
+        padding: 30px 20px;
+        background-color: var(--bg-light-dark);
+        margin-bottom: 20px;
+      }
+      .profile-pic-container {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 15px;
+      }
+      .profile-pic {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--primary-yellow);
+      }
+      .change-photo-btn {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: var(--primary-yellow);
+        color: var(--bg-dark);
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+      }
+      .profile-header h2 {
+        margin: 5px 0;
+        color: var(--text-white);
+      }
+      .role-badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-top: 5px;
+      }
+      .role-buyer {
+        background: #333;
+        color: var(--text-gray);
+      }
+      .role-seller {
+        background: var(--role-seller-bg);
+        color: var(--text-white);
+      }
+      .role-developer {
+        background: var(--role-developer-bg);
+        color: var(--text-white);
+      }
+      .profile-menu-item i {
+        font-size: 18px;
+        width: 30px;
+        color: var(--primary-yellow);
+      }
+      .profile-menu-item span {
+        flex-grow: 1;
+      }
+      .profile-menu-item .fa-chevron-right {
+        color: var(--text-gray);
+        font-size: 14px;
+      }
+      .dashboard-stats {
+        display: flex;
+        justify-content: space-around;
+        gap: 10px;
+        padding: 20px;
+      }
+      .stat-card {
+        background-color: var(--bg-light-dark);
+        padding: 15px;
+        border-radius: var(--border-radius-base);
+        text-align: center;
+        flex: 1;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      }
+      .stat-card .value {
+        font-size: 20px;
+        font-weight: bold;
+        color: var(--primary-yellow);
+        margin-bottom: 5px;
+      }
+      .stat-card .label {
+        font-size: 12px;
+        color: var(--text-gray);
+      }
+      .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        border-bottom: 1px solid #333;
+      }
+      .dashboard-product-card {
+        display: flex;
+        background-color: #333;
+        padding: 10px;
+        border-radius: var(--border-radius-base);
+        align-items: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+      .dashboard-product-card img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-right: 10px;
+      }
+      .dashboard-product-card .card-details {
+        flex-grow: 1;
+      }
+      .dashboard-product-card .title {
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 3px;
+      }
+      .dashboard-product-card .price {
+        color: var(--primary-yellow);
+        font-size: 12px;
+      }
+      .dashboard-product-card .card-actions button {
+        padding: 5px 8px;
+        border: none;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+        margin-left: 5px;
+      }
+      .dashboard-product-card .btn-edit {
+        background: var(--secondary-blue);
+        color: white;
+      }
+      .dashboard-product-card .btn-delete {
+        background: var(--error-red);
+        color: white;
+      }
+      .modal-content .modal-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .modal-content .modal-actions button {
+        flex: 1;
+      }
+      .approval-list {
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 10px;
+        border: 1px solid #444;
+        border-radius: var(--border-radius-base);
+        margin-top: 15px;
+      }
+      .approval-item {
+        background-color: #444;
+        padding: 10px;
+        margin-bottom: 8px;
+        border-radius: 6px;
+        border-left: 5px solid var(--primary-yellow);
+        display: flex;
+        flex-direction: column;
+      }
+      .approval-item .actions button {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        margin-right: 10px;
+        font-size: 12px;
+      }
+      #cart-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid #444;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      #cart-header h2 {
+        margin: 0;
+        font-size: 18px;
+        color: var(--primary-yellow);
+      }
+      .cart-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #333;
+      }
+      .cart-item-details {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .cart-item-details img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 4px;
+      }
+      .cart-item-quantity {
+        display: flex;
+        align-items: center;
+      }
+      .cart-item-quantity button {
+        background: #444;
+        color: white;
+        border: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      #cart-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #444;
+      }
+      #cart-total {
+        display: flex;
+        justify-content: space-between;
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+      #empty-cart-msg {
+        text-align: center;
+        padding: 40px 0;
+        color: var(--text-gray);
+        display: none;
+      }
+      .chat-header {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        background-color: var(--bg-light-dark);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      .chat-header i {
+        font-size: 20px;
+        cursor: pointer;
+        margin-right: 15px;
+      }
+      .chat-header h2 {
+        flex-grow: 1;
+        text-align: center;
+        margin: 0;
+        font-size: 18px;
+        color: var(--primary-yellow);
+      }
+      #chat-conversation-view {
+        flex-grow: 1;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      #chat-list-view {
+        padding: 0;
+        flex-grow: 1;
+        overflow-y: auto;
+      }
+      .chat-list-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        border-bottom: 1px solid #333;
+        cursor: pointer;
+        position: relative;
+      }
+      .chat-user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 15px;
+      }
+      .chat-details {
+        flex-grow: 1;
+      }
+      .chat-details .username {
+        font-weight: bold;
+        font-size: 14px;
+      }
+      .chat-details .last-message {
+        color: var(--text-gray);
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .chat-unread-badge {
+        background: var(--error-red);
+        color: white;
+        border-radius: 50%;
+        padding: 2px 7px;
+        font-size: 10px;
+        font-weight: bold;
+        position: absolute;
+        right: 20px;
+        top: 15px;
+      }
+      .message-bubble {
+        padding: 10px 15px;
+        border-radius: 20px;
+        margin-bottom: 10px;
+        max-width: 80%;
+        word-wrap: break-word;
+        font-size: 14px;
+        line-height: 1.4;
+        display: inline-block;
+      }
+      .message-sent {
+        background-color: var(--secondary-blue);
+        color: white;
+        float: right;
+        clear: both;
+        border-bottom-right-radius: 5px;
+        display: flex;
+        align-items: flex-end;
+      }
+      .message-received {
+        background-color: var(--bg-light-dark);
+        color: var(--text-white);
+        float: left;
+        clear: both;
+        border-bottom-left-radius: 5px;
+      }
+      .chat-input-container {
+        padding: 10px 20px;
+        background-color: var(--bg-light-dark);
+        display: flex;
+        align-items: center;
+      }
+      .chat-input-container button {
+        background: var(--primary-yellow);
+        color: var(--bg-dark);
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+      #chat-search-results {
+        padding: 10px 20px;
+        border-bottom: 1px solid #333;
+      }
+      .chat-search-result {
+        display: flex;
+        align-items: center;
+        padding: 8px 0;
+        cursor: pointer;
+      }
+      .detail-price-info {
+        padding: 15px;
+        border-bottom: 1px solid #333;
+        margin-bottom: 20px;
+      }
+      .detail-seller-info {
+        display: flex;
+        align-items: center;
+        background-color: #333;
+        padding: 10px;
+        border-radius: var(--border-radius-base);
+        cursor: pointer;
+        gap: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="auth-screen">
+      <div class="auth-container">
+        <h1>
+          <i class="fa-solid fa-bolt" style="margin-right: 5px"></i> Beast
+          E-Commerce
+        </h1>
+        <p
+          style="
+            text-align: center;
+            color: var(--text-gray);
+            margin-bottom: 20px;
+            font-size: 12px;
+          "
+        >
+          Login dengan **ONANA / akupintar123** untuk Developer Access.
+        </p>
+
+        <div id="login-view">
+          <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Username" />
+          </div>
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Password" />
+          </div>
+          <button class="btn-primary" onclick="handleLogin()">LOGIN</button>
+          <div id="login-error"></div>
+
+          <div class="switch-auth">
+            Belum punya akun?
+            <button onclick="toggleAuth('signup')">Daftar Sekarang</button>
+          </div>
+        </div>
+
+        <div id="signup-form">
+          <div class="input-group">
+            <label for="signup-username">Username Baru</label>
+            <input type="text" id="signup-username" placeholder="Username" />
+          </div>
+          <div class="input-group">
+            <label for="signup-password">Password Baru</label>
+            <input
+              type="password"
+              id="signup-password"
+              placeholder="Password"
+            />
+          </div>
+          <button class="btn-primary" onclick="attemptRegister()">
+            DAFTAR
+          </button>
+          <div id="signup-error"></div>
+
+          <div class="switch-auth">
+            Sudah punya akun?
+            <button onclick="toggleAuth('login')">Login</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="home-screen">
+      <header>
+        <div class="logo">
+          Beast<span style="color: white; font-size: 14px"> DEV</span>
+        </div>
+        <div class="user-info" onclick="openProfileScreen()">
+          <i
+            class="fa-solid fa-user-circle"
+            style="color: var(--text-white); font-size: 20px; margin-right: 5px"
+          ></i>
+          <span id="user-display-name">Guest</span>
+          <span id="notification-box" class="notification-box">
+            <span id="notification-count">0</span>
+          </span>
+        </div>
+      </header>
+
+      <div class="search-container">
+        <input
+          type="text"
+          id="universal-search-input"
+          placeholder="Cari produk atau toko..."
+          oninput="handleSearch()"
+        />
+      </div>
+
+      <div id="categories-container" class="categories-container"></div>
+
+      <div id="product-list" class="product-list"></div>
+    </div>
+
+    <div id="detail-screen" class="universal-screen">
+      <div class="screen-header">
+        <i class="fa-solid fa-arrow-left" onclick="goBackFromDetail()"></i>
+        <h2>Detail Produk</h2>
+      </div>
+      <div class="screen-content detail-content"></div>
+      <div class="detail-footer">
+        <button class="btn-primary btn-add-cart" onclick="addToCart()">
+          <i class="fa-solid fa-cart-plus"></i> Tambah Keranjang
+        </button>
+        <button class="btn-primary btn-buy-now" onclick="buyNow()">
+          <i class="fa-solid fa-money-bill-wave"></i> Beli Sekarang
+        </button>
+      </div>
+    </div>
+
+    <div id="seller-detail-screen" class="universal-screen">
+      <div class="screen-header">
+        <i
+          class="fa-solid fa-arrow-left"
+          onclick="goBackFromSellerDetail()"
+        ></i>
+        <h2 id="seller-detail-title">Nama Toko</h2>
+      </div>
+      <div class="screen-content" style="padding: 10px">
+        <h3
+          style="
+            margin-top: 0;
+            border-left: 3px solid var(--primary-yellow);
+            padding-left: 10px;
+          "
+        >
+          Produk Toko
+        </h3>
+        <div
+          id="seller-product-list"
+          class="product-list"
+          style="padding: 0"
+        ></div>
+      </div>
+    </div>
+
+    <div id="profile-screen" class="universal-screen">
+      <div class="screen-header">
+        <i class="fa-solid fa-arrow-left" onclick="goHome()"></i>
+        <h2>Profil Saya</h2>
+      </div>
+      <div class="screen-content" style="padding: 0">
+        <div class="profile-header">
+          <div class="profile-pic-container">
+            <img
+              id="user-profile-pic"
+              src="https://i.imgur.com/gK94N2m.png"
+              alt="Profile Picture"
+              class="profile-pic"
+            />
+            <label for="profile-photo-upload" class="change-photo-btn">
+              <i class="fa-solid fa-camera"></i>
+              <input
+                type="file"
+                id="profile-photo-upload"
+                accept="image/*"
+                style="display: none"
+                onchange="handleProfilePhotoUpload(event)"
+              />
+            </label>
+          </div>
+          <h2 id="profile-username-display">@Username</h2>
+          <div id="profile-role-badge" class="role-badge role-buyer">
+            Pembeli
+          </div>
+        </div>
+
+        <div id="seller-admin-menu" style="display: none">
+          <div class="profile-menu-item" onclick="openSellerDashboard()">
+            <i class="fa-solid fa-chart-line"></i>
+            <span id="dashboard-menu-title">Seller Dashboard</span>
+            <i class="fa-solid fa-chevron-right"></i>
+          </div>
+        </div>
+
+        <div
+          class="profile-menu-item"
+          onclick="openSellerModal()"
+          id="register-seller-btn"
+        >
+          <i class="fa-solid fa-store"></i>
+          <span>Daftar Toko (Jadi Seller)</span>
+          <i class="fa-solid fa-chevron-right"></i>
+        </div>
+
+        <div
+          class="profile-menu-item"
+          style="margin-top: 20px; background-color: var(--error-red)"
+          onclick="logout()"
+        >
+          <i class="fa-solid fa-sign-out-alt" style="color: white"></i>
+          <span style="color: white">Logout</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="seller-dashboard-screen" class="universal-screen">
+      <div class="screen-header">
+        <i class="fa-solid fa-arrow-left" onclick="goBackToProfile()"></i>
+        <h2 id="dashboard-title-text">Seller Dashboard</h2>
+      </div>
+      <div class="screen-content" style="padding: 0">
+        <div class="dashboard-stats">
+          <div class="stat-card">
+            <div class="value" id="stat-sales">Rp 0</div>
+            <div class="label">Total Penjualan</div>
+          </div>
+          <div class="stat-card">
+            <div class="value" id="stat-products">0</div>
+            <div class="label">Total Produk</div>
+          </div>
+        </div>
+
+        <div class="dashboard-header">
+          <h3
+            style="
+              margin: 0;
+              border-left: 3px solid var(--primary-yellow);
+              padding-left: 10px;
+            "
+          >
+            Daftar Produk
+          </h3>
+          <button
+            class="btn-primary"
+            style="
+              width: auto;
+              padding: 8px 15px;
+              font-size: 14px;
+              background: var(--success-green);
+            "
+            onclick="openModal()"
+          >
+            <i class="fa-solid fa-plus"></i> Tambah Produk
+          </button>
+        </div>
+
+        <div id="dashboard-product-list" class="dashboard-product-list"></div>
+      </div>
+    </div>
+
+    <div class="navbar">
+      <div class="nav-item active" id="nav-home" onclick="goHome()">
+        <i class="fa-solid fa-home"></i>
+        <span>Home</span>
+      </div>
+      <div class="nav-item" id="nav-chat" onclick="openChatModal()">
+        <i class="fa-solid fa-comments"></i>
+        <span>Chat</span>
+        <span id="nav-chat-count" class="nav-count">0</span>
+      </div>
+      <div class="nav-item" id="nav-cart" onclick="openCartModal()">
+        <i class="fa-solid fa-shopping-cart"></i>
+        <span>Keranjang</span>
+        <span id="nav-cart-count" class="nav-count">0</span>
+      </div>
+      <div class="nav-item" id="nav-profile" onclick="openProfileScreen()">
+        <i class="fa-solid fa-user"></i>
+        <span>Profil</span>
+      </div>
+    </div>
+
+    <div id="admin-modal" class="modal">
+      <div class="modal-content">
+        <h2 id="modal-title">Tambah Produk</h2>
+        <input type="hidden" id="edit-id" />
+
+        <div class="input-group">
+          <label for="prod-category">Kategori</label>
+          <select id="prod-category"></select>
+        </div>
+
+        <div class="input-group">
+          <label for="prod-title">Nama Produk</label>
+          <input type="text" id="prod-title" />
+        </div>
+
+        <div class="input-group">
+          <label for="prod-price-current">Harga Jual (Current)</label>
+          <input
+            type="number"
+            id="prod-price-current"
+            placeholder="Contoh: 11079000"
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="prod-price-original"
+            >Harga Asli / Harga Diskon (Original) - *Untuk Diskon</label
+          >
+          <input
+            type="number"
+            id="prod-price-original"
+            placeholder="Opsional, harus lebih tinggi dari Harga Jual"
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="prod-img">URL Gambar (Image URL)</label>
+          <input
+            type="text"
+            id="prod-img"
+            placeholder="Contoh: https://i.imgur.com/uG9XJt7.png"
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="prod-desc">Deskripsi</label>
+          <textarea id="prod-desc" rows="3"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button
+            class="btn-primary"
+            style="background: var(--success-green)"
+            onclick="saveProduct()"
+          >
+            Simpan Produk
+          </button>
+          <button
+            class="btn-primary"
+            style="background: #555"
+            onclick="closeModal()"
+          >
+            Batal
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="seller-reg-modal" class="modal">
+      <div class="modal-content">
+        <h2>Daftar Toko (Jadi Seller)</h2>
+        <div class="input-group">
+          <label for="store-name-input">Nama Toko</label>
+          <input
+            type="text"
+            id="store-name-input"
+            placeholder="Contoh: Toko Berkah Abadi"
+          />
+        </div>
+        <div class="input-group">
+          <label for="store-address-input">Alamat Toko (Detail)</label>
+          <textarea
+            id="store-address-input"
+            rows="3"
+            placeholder="Contoh: Jl. Asia Afrika No. 1, Jakarta Pusat"
+          ></textarea>
+        </div>
+
+        <div id="seller-reg-error"></div>
+
+        <div class="modal-actions">
+          <button
+            class="btn-primary"
+            style="background: var(--role-seller-bg)"
+            onclick="submitSellerRegistration()"
+          >
+            Kirim Permintaan
+          </button>
+          <button
+            class="btn-primary"
+            style="background: #555"
+            onclick="closeSellerModal()"
+          >
+            Batal
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="developer-approval-modal" class="modal">
+      <div class="modal-content">
+        <h2 id="developer-modal-title">Persetujuan Toko</h2>
+        <div id="approval-list" class="approval-list"></div>
+        <div class="modal-actions">
+          <button
+            class="btn-primary"
+            style="background: #555"
+            onclick="closeDevApprovalModal()"
+          >
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="cart-modal">
+      <div id="cart-header">
+        <h2><i class="fa-solid fa-shopping-basket"></i> Keranjang Belanja</h2>
+        <i
+          class="fa-solid fa-times"
+          style="cursor: pointer"
+          onclick="closeCartModal()"
+        ></i>
+      </div>
+
+      <div id="cart-items-list">
+        <p id="empty-cart-msg">
+          Keranjang Anda kosong. Yuk, cari barang keren!
+        </p>
+      </div>
+
+      <div id="cart-footer">
+        <div id="cart-total">
+          <span>Total Belanja:</span>
+          <span id="cart-total-price">Rp 0</span>
+        </div>
+        <button
+          class="btn-primary"
+          style="background: var(--success-green)"
+          onclick="checkout()"
+        >
+          Checkout Sekarang
+        </button>
+      </div>
+    </div>
+
+    <div id="chat-modal">
+      <div class="chat-header">
+        <i
+          class="fa-solid fa-arrow-left"
+          id="chat-back-btn"
+          onclick="showListView()"
+          style="display: none"
+        ></i>
+        <h2 id="chat-title-display">Pesan</h2>
+        <i
+          class="fa-solid fa-times"
+          style="margin-right: 0"
+          onclick="closeChatModal()"
+        ></i>
+      </div>
+
+      <div id="chat-list-view">
+        <div class="search-container" style="padding: 10px 20px">
+          <input
+            type="text"
+            id="chat-search-input"
+            placeholder="Cari pengguna untuk chat..."
+            oninput="searchUsersForChat(this.value)"
+          />
+        </div>
+        <div id="chat-search-results"></div>
+        <div id="chat-list-container"></div>
+      </div>
+
+      <div id="chat-conversation-view">
+        <div id="chat-window"></div>
+        <div class="chat-input-container">
+          <input
+            type="text"
+            id="message-input"
+            placeholder="Tulis pesan..."
+            onkeypress="if(event.keyCode === 13) sendMessage()"
+          />
+          <button onclick="sendMessage()">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --- Global State ---
+      let products = [];
+      let isAdmin = false;
+      let isSeller = false;
+      let currentSeller = null;
+      let currentProductDetailId = null;
+      let cart = [];
+      let orders = [];
+      let currentUsername = "Guest";
+      let currentCategoryFilter = "All";
+      let stores = [];
+      let storeRequests = [];
+      let registeredUsers = [];
+      let chats = [];
+      let currentChatRecipient = null;
+      let userProfileData = {};
+
+      // Data Awal
+      const categories = [
+        { id: "All", icon: "fa-solid fa-ticket", label: "Semua" },
+        { id: "Apparel", icon: "fa-solid fa-shirt", label: "Pakaian" },
+        { id: "Bags", icon: "fa-solid fa-briefcase", label: "Tas" },
+        { id: "Footwear", icon: "fa-solid fa-shoe-prints", label: "Sepatu" },
+        { id: "Electronics", icon: "fa-solid fa-mobile-alt", label: "Gawai" },
+        { id: "Discount", icon: "fa-solid fa-scroll", label: "Diskon" },
+      ];
+
+      const defaultProfilePic = "https://i.imgur.com/gK94N2m.png"; // Icon user default
+      const defaultUsers = [
+        {
+          username: "ONANA",
+          password: "akupintar123",
+          isAdmin: true,
+          isSeller: true,
+          isBanned: false,
+        },
+        {
+          username: "developer",
+          password: "dev",
+          isAdmin: false,
+          isSeller: true,
+          isBanned: false,
+        },
+        {
+          username: "pembeli_keren",
+          password: "abc",
+          isAdmin: false,
+          isSeller: false,
+          isBanned: false,
+        },
+      ];
+
+      const defaultStores = [
+        {
+          id: 100,
+          name: "Beast Official",
+          owner: "ONANA",
+          isApproved: true,
+          address: "Jakarta",
+          rating: 5.0,
+          totalSales: 20000000,
+        },
+        {
+          id: 101,
+          name: "Gadget Store",
+          owner: "developer",
+          isApproved: true,
+          address: "Bandung",
+          rating: 4.8,
+          totalSales: 5000000,
+        },
+      ];
+
+      const defaultProducts = [
+        {
+          id: 1,
+          sellerId: 100,
+          category: "Electronics",
+          title: "Apple iPhone 15 Garansi Resmi",
+          priceCurrent: "11079000",
+          priceOriginal: "19499000",
+          image: "https://i.imgur.com/uG9XJt7.png",
+          desc: "Garansi Resmi iSmile Official Store 5 Tahun. Chip A16 Bionic.",
+          rating: 5.0,
+          soldCount: "7jt+",
+          reviews: [],
+        },
+        {
+          id: 2,
+          sellerId: 101,
+          category: "Bags",
+          title: "Tas Ransel Pria Hitam Elegan",
+          priceCurrent: "150000",
+          priceOriginal: "200000",
+          image:
+            "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500",
+          desc: "Tas ransel mini warna hitam. Bahan Nylon anti air.",
+          rating: 4.8,
+          soldCount: "10rb+",
+          reviews: [],
+        },
+        {
+          id: 3,
+          sellerId: 100,
+          category: "Footwear",
+          title: "Sepatu Sneakers Casual Hitam Putih",
+          priceCurrent: "350000",
+          priceOriginal: "500000",
+          image:
+            "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500",
+          desc: "Sepatu sneakers desain futuristik. Limited edition.",
+          rating: 4.5,
+          soldCount: "5jt+",
+          reviews: [],
+        },
+        {
+          id: 4,
+          sellerId: 101,
+          category: "Apparel",
+          title: "Jaket Rompi Semiformal Model Pria",
+          priceCurrent: "299000",
+          priceOriginal: "350000",
+          image:
+            "https://images.unsplash.com/photo-1578632292335-df3abbb0d586?w=500",
+          desc: "Jaket rompi pria serbaguna, cocok untuk tampilan semi-formal dan casual.",
+          rating: 5.0,
+          soldCount: "1jt+",
+          reviews: [],
+        },
+      ];
+
+      // --- Utility Functions ---
+      const formatPrice = (price) => {
+        if (!price || isNaN(parseInt(price))) return "Gratis";
+        const num = price.toString().replace(/\./g, "").replace(/,/g, "");
+        return "Rp " + parseInt(num).toLocaleString("id-ID");
+      };
+
+      function getStarsHtml(rating) {
+        let starsHtml = "";
+        const filledStars = Math.round(rating || 5);
+        for (let i = 0; i < 5; i++) {
+          if (i < filledStars) {
+            starsHtml += `<i class="fa-solid fa-star"></i>`;
+          } else {
+            starsHtml += `<i class="fa-regular fa-star" style="color: #555;"></i>`;
+          }
+        }
+        return starsHtml;
+      }
+
+      const getChatKey = (user1, user2) => {
+        return [user1, user2].sort().join("-");
+      };
+
+      function getRegisteredUsers() {
+        const storedUsers =
+          JSON.parse(localStorage.getItem("registeredUsers")) || [];
+
+        const combinedUsers = [...defaultUsers];
+        storedUsers.forEach((storedUser) => {
+          if (
+            !combinedUsers.find(
+              (defaultUser) => defaultUser.username === storedUser.username
+            )
+          ) {
+            combinedUsers.push(storedUser);
+          }
+        });
+
+        return combinedUsers;
+      }
+
+      function getUserRole(username) {
+        if (username === "ONANA") {
+          return "Developer";
+        }
+        if (stores.some((s) => s.owner === username && s.isApproved)) {
+          return "Seller";
+        }
+        return "Buyer";
+      }
+
+      function loadUserProfileData() {
+        userProfileData =
+          JSON.parse(localStorage.getItem("beastUserProfileData")) || {};
+        if (!userProfileData[currentUsername] && currentUsername !== "Guest") {
+          userProfileData[currentUsername] = {
+            profilePicUrl: defaultProfilePic,
+          };
+          localStorage.setItem(
+            "beastUserProfileData",
+            JSON.stringify(userProfileData)
+          );
+        }
+      }
+
+      function saveRegisteredUsers() {
+        // Hanya simpan user yang tidak ada di defaultUsers
+        const nonDefaultUsers = registeredUsers.filter(
+          (user) => !defaultUsers.some((d) => d.username === user.username)
+        );
+        localStorage.setItem(
+          "registeredUsers",
+          JSON.stringify(nonDefaultUsers)
+        );
+      }
+
+      // --- Initialization ---
+      function initApp() {
+        // Load all data from storage
+        products =
+          JSON.parse(localStorage.getItem("beastProducts")) || defaultProducts;
+        cart = JSON.parse(localStorage.getItem("beastCart")) || [];
+        orders = JSON.parse(localStorage.getItem("beastOrders")) || [];
+        stores =
+          JSON.parse(localStorage.getItem("beastStores")) || defaultStores;
+        storeRequests =
+          JSON.parse(localStorage.getItem("beastStoreRequests")) || [];
+        chats = JSON.parse(localStorage.getItem("beastChats")) || [];
+        registeredUsers = getRegisteredUsers();
+
+        const currentStatus = localStorage.getItem("loginStatus");
+        if (currentStatus) {
+          const status = JSON.parse(currentStatus);
+          currentUsername = status.username;
+
+          // Cek status banned
+          const userRecord = registeredUsers.find(
+            (u) => u.username === currentUsername
+          );
+          if (userRecord && userRecord.isBanned) {
+            alert("Akun Anda telah dinonaktifkan. Silakan hubungi Developer.");
+            logout(false); // Logout tanpa konfirmasi
+            return;
+          }
+
+          // Cek ulang peran berdasarkan data terbaru
+          const role = getUserRole(currentUsername);
+          isAdmin = role === "Developer";
+          isSeller = role === "Seller";
+
+          currentSeller = stores.find(
+            (s) => s.owner === currentUsername && s.isApproved
+          );
+
+          loginSuccess(currentUsername);
+        }
+
+        loadUserProfileData();
+        updateCartCount();
+        updateChatCount();
+      }
+
+      // --- Authentication & Login ---
+      function toggleAuth(view) {
+        document.getElementById("login-view").style.display =
+          view === "login" ? "block" : "none";
+        document.getElementById("signup-form").style.display =
+          view === "signup" ? "block" : "none";
+        document.getElementById("login-error").style.display = "none";
+        document.getElementById("signup-error").style.display = "none";
+      }
+
+      function attemptRegister() {
+        const userIn = document.getElementById("signup-username").value;
+        const passIn = document.getElementById("signup-password").value;
+        const errorMsg = document.getElementById("signup-error");
+
+        if (userIn === "" || passIn === "") {
+          errorMsg.innerText = "Mohon isi semua kolom!";
+          errorMsg.style.display = "block";
+          return;
+        }
+
+        const existingUser = getRegisteredUsers().find(
+          (u) => u.username === userIn
+        );
+
+        if (existingUser) {
+          errorMsg.innerText = "Username sudah terdaftar atau tidak diizinkan!";
+          errorMsg.style.display = "block";
+          return;
+        }
+
+        registeredUsers.push({
+          username: userIn,
+          password: passIn,
+          isAdmin: false,
+          isSeller: false,
+          isBanned: false,
+        });
+        saveRegisteredUsers();
+
+        userProfileData[userIn] = { profilePicUrl: defaultProfilePic };
+        localStorage.setItem(
+          "beastUserProfileData",
+          JSON.stringify(userProfileData)
+        );
+
+        alert("Pendaftaran Berhasil! Silakan Login.");
+        toggleAuth("login");
+        document.getElementById("username").value = userIn;
+        document.getElementById("password").value = "";
+      }
+
+      function handleLogin() {
+        const userIn = document.getElementById("username").value;
+        const passIn = document.getElementById("password").value;
+        const errorDiv = document.getElementById("login-error");
+
+        const allUsers = getRegisteredUsers();
+        let userRecord = allUsers.find(
+          (u) => u.username === userIn && u.password === passIn
+        );
+        let isValidUser = !!userRecord;
+
+        if (isValidUser) {
+          if (userRecord.isBanned) {
+            errorDiv.innerText = "Akun Anda telah dinonaktifkan.";
+            errorDiv.style.display = "block";
+            return;
+          }
+
+          currentUsername = userIn;
+
+          const role = getUserRole(currentUsername);
+          isAdmin = role === "Developer";
+          isSeller = role === "Seller";
+          currentSeller = stores.find(
+            (s) => s.owner === currentUsername && s.isApproved
+          );
+
+          errorDiv.style.display = "none";
+
+          localStorage.setItem(
+            "loginStatus",
+            JSON.stringify({ username: userIn, isAdmin: isAdmin })
+          );
+
+          if (!userProfileData[currentUsername]) {
+            userProfileData[currentUsername] = {
+              profilePicUrl: defaultProfilePic,
+            };
+            localStorage.setItem(
+              "beastUserProfileData",
+              JSON.stringify(userProfileData)
+            );
+          }
+
+          loginSuccess(userIn);
+        } else {
+          errorDiv.innerText = "Akun tidak ditemukan atau Password salah!";
+          errorDiv.style.display = "block";
+        }
+      }
+
+      function loginSuccess(name) {
+        const authScreen = document.getElementById("auth-screen");
+        const homeScreen = document.getElementById("home-screen");
+
+        authScreen.style.opacity = 0;
+        setTimeout(() => {
+          authScreen.style.display = "none";
+          homeScreen.style.display = "block";
+          homeScreen.classList.add("fade-in");
+        }, 300);
+
+        document.getElementById("user-display-name").innerText = name;
+
+        const registerBtn = document.getElementById("register-seller-btn");
+
+        if (isSeller || isAdmin) {
+          registerBtn.style.display = "none";
+        } else {
+          const hasRequest = storeRequests.some(
+            (r) => r.owner === currentUsername
+          );
+          registerBtn.style.display = hasRequest ? "none" : "inline";
+        }
+
+        if (isAdmin) {
+          updateDevNotification();
+        }
+
+        renderCategories();
+        renderProducts();
+        goHome();
+      }
+
+      function logout(confirmNeeded = true) {
+        if (!confirmNeeded || confirm("Apakah Anda yakin ingin Logout?")) {
+          localStorage.removeItem("loginStatus");
+          location.reload();
+        }
+      }
+
+      // --- Navigation (No Change) ---
+      function closeAllScreens() {
+        const screens = [
+          "detail-screen",
+          "seller-detail-screen",
+          "profile-screen",
+          "seller-dashboard-screen",
+        ];
+        screens.forEach((id) => {
+          const screen = document.getElementById(id);
+          if (screen.classList.contains("active")) {
+            screen.style.transform = "translateX(100%)";
+            screen.classList.remove("active");
+            setTimeout(() => (screen.style.display = "none"), 300);
+          }
+        });
+        document.getElementById("chat-modal").style.display = "none";
+        document.getElementById("cart-modal").classList.remove("open");
+        setTimeout(
+          () => (document.getElementById("cart-modal").style.display = "none"),
+          300
+        );
+      }
+
+      function goHome() {
+        closeAllScreens();
+        document.getElementById("home-screen").style.display = "block";
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((item) => item.classList.remove("active"));
+        document.getElementById("nav-home").classList.add("active");
+        currentProductDetailId = null;
+        window.scrollTo(0, 0);
+        renderProducts();
+        document.getElementById("universal-search-input").value = "";
+      }
+
+      function goBackFromDetail() {
+        closeDetailScreen();
+        document.getElementById("home-screen").style.display = "block";
+        document.getElementById("nav-home").classList.add("active");
+      }
+
+      function goBackFromSellerDetail() {
+        document.getElementById("seller-detail-screen").style.transform =
+          "translateX(100%)";
+        document
+          .getElementById("seller-detail-screen")
+          .classList.remove("active");
+        setTimeout(() => {
+          document.getElementById("seller-detail-screen").style.display =
+            "none";
+          document.getElementById("home-screen").style.display = "block";
+          document.getElementById("nav-home").classList.add("active");
+        }, 300);
+      }
+
+      function closeDetailScreen() {
+        document.getElementById("detail-screen").style.transform =
+          "translateX(100%)";
+        document.getElementById("detail-screen").classList.remove("active");
+        setTimeout(() => {
+          document.getElementById("detail-screen").style.display = "none";
+        }, 300);
+      }
+
+      function openProfileScreen() {
+        if (currentUsername === "Guest") {
+          alert("Silakan login untuk melihat Profil Anda.");
+          return;
+        }
+        closeAllScreens();
+        document.getElementById("home-screen").style.display = "none";
+
+        const screen = document.getElementById("profile-screen");
+        updateProfileDisplay();
+
+        screen.style.display = "block";
+        setTimeout(() => {
+          screen.style.transform = "translateX(0)";
+          screen.classList.add("active");
+        }, 50);
+
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((item) => item.classList.remove("active"));
+        document.getElementById("nav-profile").classList.add("active");
+        window.scrollTo(0, 0);
+      }
+
+      function goBackToProfile() {
+        document.getElementById("seller-dashboard-screen").style.transform =
+          "translateX(100%)";
+        document
+          .getElementById("seller-dashboard-screen")
+          .classList.remove("active");
+        setTimeout(() => {
+          document.getElementById("seller-dashboard-screen").style.display =
+            "none";
+          document.getElementById("profile-screen").style.display = "block";
+          document.getElementById("profile-screen").style.transform =
+            "translateX(0)";
+          document.getElementById("profile-screen").classList.add("active");
+        }, 300);
+      }
+
+      // --- Profile Logic (No Change) ---
+      function updateProfileDisplay() {
+        document.getElementById(
+          "profile-username-display"
+        ).innerText = `@${currentUsername}`;
+
+        const role = getUserRole(currentUsername);
+        const roleBadge = document.getElementById("profile-role-badge");
+        const sellerAdminMenu = document.getElementById("seller-admin-menu");
+        const dashboardMenuTitle = document.getElementById(
+          "dashboard-menu-title"
+        );
+
+        roleBadge.className = "role-badge";
+        sellerAdminMenu.style.display = "none";
+
+        if (role === "Developer") {
+          roleBadge.innerText = "Developer (Admin)";
+          roleBadge.classList.add("role-developer");
+          sellerAdminMenu.style.display = "block";
+          dashboardMenuTitle.innerText = "Admin Dashboard";
+        } else if (role === "Seller") {
+          const storeName = currentSeller
+            ? currentSeller.name
+            : "Unknown Store";
+          roleBadge.innerText = `Seller (${storeName})`;
+          roleBadge.classList.add("role-seller");
+          sellerAdminMenu.style.display = "block";
+          dashboardMenuTitle.innerText = "Seller Dashboard";
+        } else {
+          roleBadge.innerText = "Pembeli";
+          roleBadge.classList.add("role-buyer");
+        }
+
+        const ppUrl =
+          userProfileData[currentUsername]?.profilePicUrl || defaultProfilePic;
+        document.getElementById("user-profile-pic").src = ppUrl;
+      }
+
+      function handleProfilePhotoUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+          alert("File yang diunggah harus berupa gambar.");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const base64Image = e.target.result;
+
+          userProfileData[currentUsername].profilePicUrl = base64Image;
+          localStorage.setItem(
+            "beastUserProfileData",
+            JSON.stringify(userProfileData)
+          );
+
+          document.getElementById("user-profile-pic").src = base64Image;
+          alert("Foto profil berhasil diubah dan disimpan secara lokal!");
+        };
+
+        if (file.size > 2 * 1024 * 1024) {
+          alert("Ukuran file terlalu besar (maksimal 2MB).");
+          return;
+        }
+
+        reader.readAsDataURL(file);
+      }
+
+      // --- Seller Dashboard Logic ---
+      function openSellerDashboard() {
+        if (!isAdmin && !isSeller) {
+          alert("Anda tidak memiliki akses ke Dashboard Penjual.");
+          return;
+        }
+
+        document.getElementById("profile-screen").style.transform =
+          "translateX(100%)";
+        document.getElementById("profile-screen").classList.remove("active");
+
+        const dashboardScreen = document.getElementById(
+          "seller-dashboard-screen"
+        );
+
+        const title = isAdmin
+          ? "Admin Dashboard"
+          : currentSeller
+          ? `Toko ${currentSeller.name}`
+          : "Seller Dashboard";
+        document.getElementById("dashboard-title-text").innerText = title;
+
+        renderDashboardStats();
+        renderDashboardProducts();
+
+        // Tambahkan menu Developer/Admin
+        if (isAdmin) {
+          // Hapus menu admin lama jika ada
+          const existingAdminMenu = document.querySelector(
+            "#seller-dashboard-screen > div.screen-content > div.admin-menu-container"
+          );
+          if (existingAdminMenu) {
+            existingAdminMenu.remove();
+          }
+
+          const adminMenuContainer = document.createElement("div");
+          adminMenuContainer.className = "admin-menu-container";
+          adminMenuContainer.style.cssText =
+            "padding: 10px 20px; border-bottom: 1px solid #333;";
+
+          const adminMenu = `
+                    <h3 style="color: var(--error-red); font-size: 16px; margin-bottom: 15px;"><i class="fa-solid fa-user-shield"></i> Fitur Admin</h3>
+                    <button class="btn-primary" onclick="openDevApprovalModal()" style="background: var(--role-seller-bg); margin-bottom: 10px; width: 100%;">
+                        <i class="fa-solid fa-check-double"></i> Kelola Persetujuan Toko (${storeRequests.length})
+                    </button>
+                    <button class="btn-primary" onclick="openBanUserModal()" style="background: var(--error-red); width: 100%;">
+                        <i class="fa-solid fa-ban"></i> Kelola Ban User
+                    </button>
+                 `;
+          adminMenuContainer.innerHTML = adminMenu;
+
+          document
+            .querySelector("#seller-dashboard-screen .screen-content")
+            .prepend(adminMenuContainer);
+        } else {
+          // Bersihkan menu admin jika bukan admin
+          const existingAdminMenu = document.querySelector(
+            "#seller-dashboard-screen .admin-menu-container"
+          );
+          if (existingAdminMenu) {
+            existingAdminMenu.remove();
+          }
+        }
+
+        dashboardScreen.style.display = "block";
+        setTimeout(() => {
+          dashboardScreen.style.transform = "translateX(0)";
+          dashboardScreen.classList.add("active");
+        }, 50);
+      }
+
+      function renderDashboardStats() {
+        let totalSales = 0;
+        let totalProductsCount = 0;
+        let productsToFilter = products;
+
+        if (isSeller && currentSeller) {
+          productsToFilter = products.filter(
+            (p) => p.sellerId === currentSeller.id
+          );
+          totalSales = currentSeller.totalSales || 0;
+        } else if (isAdmin) {
+          totalSales = stores.reduce(
+            (sum, store) => sum + (store.totalSales || 0),
+            0
+          );
+        }
+
+        totalProductsCount = productsToFilter.length;
+
+        document.getElementById("stat-sales").innerText =
+          formatPrice(totalSales);
+        document.getElementById("stat-products").innerText = totalProductsCount;
+      }
+
+      function renderDashboardProducts() {
+        const listContainer = document.getElementById("dashboard-product-list");
+        listContainer.innerHTML = "";
+
+        let productsToRender = products;
+        const sellerId = currentSeller ? currentSeller.id : isAdmin ? null : -1;
+
+        if (!isAdmin && sellerId !== null) {
+          productsToRender = products.filter((p) => p.sellerId === sellerId);
+        }
+
+        if (productsToRender.length === 0) {
+          listContainer.innerHTML =
+            '<p style="text-align:center; color:var(--text-gray); padding: 20px;">Anda belum memiliki produk.</p>';
+          return;
+        }
+
+        productsToRender.forEach((prod) => {
+          const card = document.createElement("div");
+          card.className = "dashboard-product-card";
+
+          // Tentukan apakah user bisa mengedit: Admin (ya), Seller (hanya miliknya)
+          const canEdit =
+            isAdmin || (isSeller && prod.sellerId === currentSeller?.id);
+
+          const cardActionsHtml = canEdit
+            ? `
+                    <button class="btn-edit" onclick="openEditModal(${prod.id}, event)"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-delete" onclick="deleteProduct(${prod.id}, event)"><i class="fa-solid fa-trash"></i></button>
+                `
+            : `<p style="font-size: 10px; color: var(--text-gray); padding: 5px; text-align: right;">Hanya Lihat</p>`;
+
+          card.innerHTML = `
+                    <img src="${prod.image}" alt="${prod.title}">
+                    <div class="card-details">
+                        <div class="title">${prod.title}</div>
+                        <div class="price">${formatPrice(
+                          prod.priceCurrent
+                        )}</div>
+                        <div style="font-size: 11px; color: var(--text-gray);">Stok: ${
+                          Math.floor(Math.random() * 50) + 1
+                        }</div>
+                    </div>
+                    <div class="card-actions">
+                        ${cardActionsHtml}
+                    </div>
+                `;
+          listContainer.appendChild(card);
+        });
+      }
+
+      // --- CRUD/Admin ---
+      function openModal(productId = null) {
+        if (!isAdmin && !isSeller)
+          return alert(
+            "Anda tidak memiliki izin untuk menambah/mengedit produk."
+          );
+
+        const modal = document.getElementById("admin-modal");
+        const titleElement = document.getElementById("modal-title");
+        const categorySelect = document.getElementById("prod-category");
+        categorySelect.innerHTML = categories
+          .filter((c) => c.id !== "All" && c.id !== "Discount")
+          .map((c) => `<option value="${c.id}">${c.label}</option>`)
+          .join("");
+
+        if (productId) {
+          const product = products.find((p) => p.id === productId);
+
+          // *Developer Override Logic*
+          if (!isAdmin && product && product.sellerId !== currentSeller?.id) {
+            alert("Anda hanya bisa mengedit produk milik toko Anda sendiri.");
+            return;
+          }
+
+          titleElement.innerText = "Edit Produk";
+          document.getElementById("edit-id").value = product.id;
+          document.getElementById("prod-category").value = product.category;
+          document.getElementById("prod-title").value = product.title;
+          document.getElementById("prod-price-current").value = parseInt(
+            product.priceCurrent
+          );
+          document.getElementById("prod-price-original").value =
+            parseInt(product.priceOriginal) > 0
+              ? parseInt(product.priceOriginal)
+              : "";
+          document.getElementById("prod-img").value = product.image;
+          document.getElementById("prod-desc").value = product.desc;
+        } else {
+          titleElement.innerText = "Tambah Produk";
+          document.getElementById("edit-id").value = "";
+          document.getElementById("prod-title").value = "";
+          document.getElementById("prod-price-current").value = "";
+          document.getElementById("prod-price-original").value = "";
+          document.getElementById("prod-img").value = "";
+          document.getElementById("prod-desc").value = "";
+          categorySelect.value = categories.find(
+            (c) => c.id !== "All" && c.id !== "Discount"
+          )?.id;
+        }
+
+        modal.style.display = "flex";
+      }
+
+      function openEditModal(id, event) {
+        if (event) event.stopPropagation();
+        openModal(id);
+      }
+
+      function closeModal() {
+        document.getElementById("admin-modal").style.display = "none";
+        renderDashboardProducts();
+        renderDashboardStats();
+        renderProducts();
+      }
+
+      function saveProduct() {
+        if (!isAdmin && !isSeller)
+          return alert("Anda tidak memiliki izin untuk menambah produk.");
+
+        const id = document.getElementById("edit-id").value;
+        const newCategory = document.getElementById("prod-category").value;
+        const newTitle = document.getElementById("prod-title").value;
+        const newPriceCurrent =
+          document.getElementById("prod-price-current").value;
+        let newPriceOriginal = document.getElementById(
+          "prod-price-original"
+        ).value;
+        const newImage = document.getElementById("prod-img").value;
+        const newDesc = document.getElementById("prod-desc").value;
+
+        if (!newTitle || !newPriceCurrent || !newImage) {
+          return alert("Judul, Harga Jual, dan Gambar wajib diisi!");
+        }
+
+        const priceCurr = parseInt(newPriceCurrent);
+        let priceOrig = newPriceOriginal
+          ? parseInt(newPriceOriginal)
+          : priceCurr;
+
+        if (priceOrig <= priceCurr) {
+          priceOrig = priceCurr;
+          newPriceOriginal = priceCurr.toString();
+        } else {
+          newPriceOriginal = priceOrig.toString();
+        }
+
+        const newProductData = {
+          category: newCategory,
+          title: newTitle,
+          priceCurrent: priceCurr.toString(),
+          priceOriginal: newPriceOriginal,
+          image: newImage,
+          desc: newDesc,
+          rating: 5.0,
+          soldCount: "Baru",
+        };
+
+        const sellerId = currentSeller
+          ? currentSeller.id
+          : stores.find((s) => s.owner === "ONANA").id;
+
+        if (id) {
+          const index = products.findIndex((p) => p.id == id);
+          if (index !== -1) {
+            // Seller hanya bisa edit produk mereka sendiri. Admin/Developer bisa edit semua.
+            if (!isAdmin && products[index].sellerId !== sellerId) {
+              alert("Anda hanya bisa mengedit produk milik toko Anda sendiri.");
+              return;
+            }
+
+            products[index] = {
+              ...products[index],
+              ...newProductData,
+            };
+          }
+        } else {
+          const newId =
+            products.length > 0
+              ? Math.max(...products.map((p) => p.id)) + 1
+              : 1;
+          products.push({
+            id: newId,
+            sellerId: sellerId,
+            ...newProductData,
+            reviews: [],
+          });
+        }
+
+        localStorage.setItem("beastProducts", JSON.stringify(products));
+        closeModal();
+        renderProducts();
+        alert("Produk berhasil disimpan!");
+      }
+
+      function deleteProduct(id, event) {
+        if (!isAdmin && !isSeller)
+          return alert("Anda tidak memiliki izin untuk menghapus produk.");
+        if (event) event.stopPropagation();
+
+        const prodToDelete = products.find((p) => p.id === id);
+        const sellerId = currentSeller
+          ? currentSeller.id
+          : stores.find((s) => s.owner === "ONANA").id;
+
+        // Seller hanya bisa hapus produk mereka sendiri. Admin/Developer bisa hapus semua.
+        if (!isAdmin && prodToDelete && prodToDelete.sellerId !== sellerId) {
+          alert("Anda hanya bisa menghapus produk milik toko Anda sendiri.");
+          return;
+        }
+
+        if (confirm("Yakin ingin menghapus produk ini?")) {
+          products = products.filter((p) => p.id !== id);
+          localStorage.setItem("beastProducts", JSON.stringify(products));
+
+          renderDashboardProducts();
+          renderDashboardStats();
+          renderProducts();
+
+          alert("Produk berhasil dihapus!");
+        }
+      }
+
+      // --- Developer/Admin Functionality (NEW) ---
+
+      // Fitur Ban User
+      function openBanUserModal() {
+        if (!isAdmin) return;
+
+        // Modal Ban User (menggunakan modal yang sudah ada untuk approval, hanya ganti konten)
+        const modal = document.getElementById("developer-approval-modal");
+        const list = document.getElementById("approval-list");
+        list.innerHTML = "";
+        document.querySelector("#developer-approval-modal h2").innerHTML =
+          'Kelola Pengguna <i class="fa-solid fa-ban"></i>';
+
+        const usersToManage = registeredUsers.filter(
+          (u) =>
+            u.username !== currentUsername &&
+            getUserRole(u.username) !== "Developer"
+        );
+
+        if (usersToManage.length === 0) {
+          list.innerHTML =
+            '<p style="text-align:center; color:var(--text-gray); padding: 20px;">Tidak ada pengguna untuk dikelola.</p>';
+          return;
+        }
+
+        usersToManage.forEach((user) => {
+          const role = getUserRole(user.username);
+          const statusText = user.isBanned ? "BANNED" : "Aktif";
+          const statusColor = user.isBanned
+            ? "var(--error-red)"
+            : "var(--success-green)";
+          const actionText = user.isBanned ? "Unban" : "Ban";
+          const actionColor = user.isBanned
+            ? "var(--success-green)"
+            : "var(--error-red)";
+
+          const div = document.createElement("div");
+          div.className = "approval-item";
+          div.style.borderLeftColor = statusColor;
+          div.innerHTML = `
+                    <div style="font-weight: bold; color: var(--primary-yellow);">${user.username}</div>
+                    <div style="font-size: 12px; color: ${statusColor}; margin-bottom: 5px;">Status: ${statusText} (${role})</div>
+                    <div class="actions">
+                        <button style="background: ${actionColor}; color: white;" onclick="toggleBanUser('${user.username}', ${user.isBanned})">${actionText}</button>
+                    </div>
+                `;
+          list.appendChild(div);
+        });
+
+        modal.style.display = "flex";
+      }
+
+      function toggleBanUser(username, isBanned) {
+        if (!isAdmin) return;
+        if (username === currentUsername)
+          return alert("Anda tidak dapat ban diri sendiri.");
+
+        if (
+          confirm(
+            `Apakah Anda yakin ingin ${
+              isBanned ? "UNBAN" : "BAN"
+            } pengguna ${username}?`
+          )
+        ) {
+          const userIndex = registeredUsers.findIndex(
+            (u) => u.username === username
+          );
+          if (userIndex !== -1) {
+            registeredUsers[userIndex].isBanned = !isBanned;
+            saveRegisteredUsers();
+
+            alert(`${username} berhasil di${isBanned ? "unban" : "ban"}.`);
+            openBanUserModal(); // Muat ulang modal
+          }
+        }
+      }
+      // End Fitur Ban User
+
+      // --- Seller Registration & Approval (No change) ---
+      function openSellerModal() {
+        if (currentUsername === "Guest") {
+          alert("Anda harus Login terlebih dahulu untuk mendaftar toko.");
+          return;
+        }
+        document.getElementById("seller-reg-modal").style.display = "flex";
+      }
+
+      function closeSellerModal() {
+        document.getElementById("seller-reg-modal").style.display = "none";
+      }
+
+      function submitSellerRegistration() {
+        const storeName = document
+          .getElementById("store-name-input")
+          .value.trim();
+        const storeAddress = document
+          .getElementById("store-address-input")
+          .value.trim();
+        const errorDiv = document.getElementById("seller-reg-error");
+
+        if (storeName.length < 3 || storeAddress.length < 10) {
+          errorDiv.innerText =
+            "Nama Toko minimal 3 karakter, Alamat minimal 10 karakter.";
+          errorDiv.style.display = "block";
+          return;
+        }
+
+        if (
+          stores.some(
+            (s) => s.name.toLowerCase() === storeName.toLowerCase()
+          ) ||
+          storeRequests.some(
+            (r) => r.storeName.toLowerCase() === storeName.toLowerCase()
+          )
+        ) {
+          errorDiv.innerText =
+            "Nama toko ini sudah terdaftar atau dalam antrian.";
+          errorDiv.style.display = "block";
+          return;
+        }
+
+        const newRequest = {
+          id: Date.now(),
+          owner: currentUsername,
+          storeName: storeName,
+          address: storeAddress,
+        };
+
+        storeRequests.push(newRequest);
+        localStorage.setItem(
+          "beastStoreRequests",
+          JSON.stringify(storeRequests)
+        );
+
+        closeSellerModal();
+        alert(
+          "Permintaan pendaftaran toko berhasil dikirim! Mohon tunggu persetujuan dari Developer (ONANA)."
+        );
+
+        document.getElementById("register-seller-btn").style.display = "none";
+
+        if (isAdmin) {
+          updateDevNotification();
+        }
+      }
+
+      function approveStore(id) {
+        const requestIndex = storeRequests.findIndex((r) => r.id === id);
+        if (requestIndex === -1) return;
+
+        const req = storeRequests[requestIndex];
+
+        const newStoreId =
+          stores.length > 0 ? Math.max(...stores.map((s) => s.id)) + 1 : 100;
+
+        const newStore = {
+          id: newStoreId,
+          name: req.storeName,
+          owner: req.owner,
+          isApproved: true,
+          address: req.address,
+          rating: 5.0,
+          totalSales: 0,
+        };
+
+        stores.push(newStore);
+        storeRequests.splice(requestIndex, 1);
+
+        localStorage.setItem("beastStores", JSON.stringify(stores));
+        localStorage.setItem(
+          "beastStoreRequests",
+          JSON.stringify(storeRequests)
+        );
+
+        alert(`Toko ${req.storeName} berhasil disetujui!`);
+
+        if (req.owner === currentUsername) {
+          currentSeller = newStore;
+          isSeller = true;
+          loginSuccess(currentUsername);
+        }
+
+        updateDevNotification();
+        renderApprovalList();
+      }
+
+      function rejectStore(id) {
+        if (confirm("Yakin ingin menolak permintaan toko ini?")) {
+          storeRequests = storeRequests.filter((r) => r.id !== id);
+          localStorage.setItem(
+            "beastStoreRequests",
+            JSON.stringify(storeRequests)
+          );
+          updateDevNotification();
+          renderApprovalList();
+          alert("Permintaan toko ditolak.");
+        }
+      }
+
+      function updateDevNotification() {
+        const count = storeRequests.length;
+        const notifBox = document.getElementById("notification-box");
+        document.getElementById("notification-count").innerText = count;
+        notifBox.style.display = isAdmin && count > 0 ? "block" : "none";
+      }
+
+      function openDevApprovalModal() {
+        if (!isAdmin) return;
+        document.getElementById("developer-approval-modal").style.display =
+          "flex";
+        document.querySelector("#developer-approval-modal h2").innerHTML =
+          'Persetujuan Toko <i class="fa-solid fa-hammer"></i>';
+        renderApprovalList();
+      }
+
+      function closeDevApprovalModal() {
+        document.getElementById("developer-approval-modal").style.display =
+          "none";
+      }
+
+      function renderApprovalList() {
+        const list = document.getElementById("approval-list");
+        list.innerHTML = "";
+
+        if (storeRequests.length === 0) {
+          list.innerHTML =
+            '<p style="text-align:center; color:var(--text-gray); padding: 20px;">Tidak ada permintaan baru.</p>';
+          return;
+        }
+
+        storeRequests.forEach((req) => {
+          const div = document.createElement("div");
+          div.className = "approval-item";
+          div.innerHTML = `
+                    <div style="font-weight: bold; color: var(--primary-yellow);">${req.storeName}</div>
+                    <div style="font-size: 12px; color: var(--text-gray);">Owner: @${req.owner}</div>
+                    <div style="font-size: 12px; color: var(--text-gray); margin-bottom: 10px;">Alamat: ${req.address}</div>
+                    <div class="actions">
+                        <button style="background: var(--success-green); color: white;" onclick="approveStore(${req.id})">Setujui</button>
+                        <button style="background: var(--error-red); color: white;" onclick="rejectStore(${req.id})">Tolak</button>
+                    </div>
+                `;
+          list.appendChild(div);
+        });
+      }
+
+      // --- Produk & Kategori (No change) ---
+      function renderCategories() {
+        const container = document.getElementById("categories-container");
+        container.innerHTML = categories
+          .map(
+            (cat) => `
+                <div class="category-item ${
+                  currentCategoryFilter === cat.id ? "active" : ""
+                }" onclick="filterProducts('${cat.id}')">
+                    <div class="category-icon">
+                        <i class="${cat.icon}"></i>
+                    </div>
+                    <span>${cat.label}</span>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      function filterProducts(categoryId) {
+        currentCategoryFilter = categoryId;
+        renderCategories();
+        renderProducts();
+        document.getElementById("universal-search-input").value = "";
+      }
+
+      function handleSearch() {
+        renderProducts(
+          document.getElementById("universal-search-input").value.toLowerCase()
+        );
+      }
+
+      function renderProducts(searchTerm = "") {
+        const listContainer = document.getElementById("product-list");
+        listContainer.innerHTML = "";
+
+        let filteredProducts = products;
+
+        if (currentCategoryFilter !== "All") {
+          filteredProducts = filteredProducts.filter((p) => {
+            if (currentCategoryFilter === "Discount") {
+              return parseInt(p.priceOriginal) > parseInt(p.priceCurrent);
+            }
+            return p.category === currentCategoryFilter;
+          });
+        }
+
+        if (searchTerm) {
+          filteredProducts = filteredProducts.filter(
+            (p) =>
+              p.title.toLowerCase().includes(searchTerm) ||
+              stores
+                .find((s) => s.id === p.sellerId)
+                ?.name.toLowerCase()
+                .includes(searchTerm)
+          );
+        }
+
+        if (filteredProducts.length === 0) {
+          listContainer.innerHTML = `<p style="grid-column: 1 / -1; text-align:center; color:var(--text-gray); padding: 30px;">
+                    Produk tidak ditemukan untuk filter ini.
+                </p>`;
+          return;
+        }
+
+        filteredProducts.forEach((prod) => {
+          const isDiscount =
+            parseInt(prod.priceOriginal) > parseInt(prod.priceCurrent);
+          const discountPercentage = isDiscount
+            ? Math.round(
+                ((parseInt(prod.priceOriginal) - parseInt(prod.priceCurrent)) /
+                  parseInt(prod.priceOriginal)) *
+                  100
+              )
+            : 0;
+          const discountHtml = isDiscount
+            ? `<div class="discount-badge">${discountPercentage}% OFF</div>`
+            : "";
+
+          const card = document.createElement("div");
+          card.className = "product-card";
+          card.setAttribute("onclick", `showDetail(${prod.id})`);
+
+          const seller = stores.find((s) => s.id === prod.sellerId);
+          const sellerName = seller ? seller.name : "Toko Tidak Dikenal";
+
+          card.innerHTML = `
+                    <div class="product-image-container">
+                         <img src="${prod.image}" alt="${
+            prod.title
+          }" class="product-image">
+                         ${discountHtml}
+                    </div>
+                    <div class="product-info">
+                        <div class="product-title">${prod.title}</div>
+                        <div>
+                            <span class="product-price-current">${formatPrice(
+                              prod.priceCurrent
+                            )}</span>
+                            ${
+                              isDiscount
+                                ? `<span class="product-price-original">${formatPrice(
+                                    prod.priceOriginal
+                                  )}</span>`
+                                : ""
+                            }
+                        </div>
+                        <div class="product-meta">
+                            <span class="product-rating">
+                                ${getStarsHtml(prod.rating)}
+                            </span>
+                            <span style="font-size: 10px; color: var(--text-gray);">${
+                              prod.soldCount
+                            } Terjual</span>
+                        </div>
+                        <div style="font-size: 10px; color: var(--text-gray); margin-top: 5px;">
+                            <i class="fa-solid fa-store" style="color: var(--role-seller-bg);"></i> <span onclick="showSellerDetail(${
+                              prod.sellerId
+                            }, event)" style="cursor:pointer; text-decoration: underline;">${sellerName}</span>
+                        </div>
+                    </div>
+                `;
+          listContainer.appendChild(card);
+        });
+      }
+
+      function showDetail(productId) {
+        currentProductDetailId = productId;
+        const prod = products.find((p) => p.id === productId);
+        if (!prod) {
+          alert("Produk tidak ditemukan.");
+          return;
+        }
+
+        const seller = stores.find((s) => s.id === prod.sellerId);
+        const sellerName = seller ? seller.name : "Penjual Tidak Dikenal";
+        const isDiscount =
+          parseInt(prod.priceOriginal) > parseInt(prod.priceCurrent);
+
+        const contentHtml = `
+                <img src="${prod.image}" alt="${
+          prod.title
+        }" style="width: 100%; height: 300px; object-fit: cover; margin-bottom: 20px; border-radius: var(--border-radius-base);">
+                
+                <h2>${prod.title}</h2>
+                <p style="color: var(--text-gray); margin-bottom: 10px; font-size: 14px;">Stok: Tersedia | Terjual: ${
+                  prod.soldCount
+                }</p>
+                
+                <div class="detail-price-info">
+                    <div style="display:flex; align-items:flex-end;">
+                        <span style="color: var(--primary-yellow); font-size: 28px; font-weight: bold; margin-right: 10px;">${formatPrice(
+                          prod.priceCurrent
+                        )}</span>
+                        ${
+                          isDiscount
+                            ? `<span style="color: var(--text-gray); text-decoration: line-through; font-size: 16px;">${formatPrice(
+                                prod.priceOriginal
+                              )}</span>`
+                            : ""
+                        }
+                    </div>
+                    <div style="color: var(--primary-yellow); margin-top: 5px;">${getStarsHtml(
+                      prod.rating
+                    )} ${prod.rating} / 5.0</div>
+                </div>
+
+                <div class="detail-seller-info" onclick="showSellerDetail(${
+                  prod.sellerId
+                })">
+                     <i class="fa-solid fa-store"></i> 
+                     <span style="font-weight: bold; flex-grow: 1;">${sellerName}</span>
+                     <i class="fa-solid fa-chevron-right" style="color: var(--text-gray);"></i>
+                </div>
+
+                <h3 style="margin-top: 20px; color: var(--text-white); border-left: 3px solid var(--primary-yellow); padding-left: 10px;">Deskripsi</h3>
+                <p style="margin-top: 10px; color: var(--text-gray); line-height: 1.5;">${
+                  prod.desc
+                }</p>
+            `;
+
+        document.querySelector("#detail-screen .detail-content").innerHTML =
+          contentHtml +
+          `
+                 <button class="btn-primary chat-seller-btn" onclick="startChatFromProduct()" style="margin-top: 20px; background: var(--role-seller-bg); color: white;">
+                     <i class="fa-solid fa-comments"></i> Chat Penjual
+                </button>
+            `;
+
+        closeAllScreens();
+        document.getElementById("home-screen").style.display = "none";
+
+        const detailScreen = document.getElementById("detail-screen");
+        detailScreen.style.display = "block";
+        setTimeout(() => {
+          detailScreen.style.transform = "translateX(0)";
+          detailScreen.classList.add("active");
+        }, 50);
+
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((item) => item.classList.remove("active"));
+        window.scrollTo(0, 0);
+      }
+
+      function showSellerDetail(sellerId, event) {
+        if (event) event.stopPropagation();
+
+        const seller = stores.find((s) => s.id === sellerId);
+        if (!seller || !seller.isApproved) {
+          alert("Toko tidak ditemukan atau belum disetujui.");
+          return;
+        }
+
+        document.getElementById("seller-detail-title").innerText = seller.name;
+        const productList = document.getElementById("seller-product-list");
+        productList.innerHTML = "";
+
+        const sellerProducts = products.filter((p) => p.sellerId === sellerId);
+        if (sellerProducts.length === 0) {
+          productList.innerHTML = `<p style="grid-column: 1 / -1; text-align:center; color:var(--text-gray); padding: 30px;">Toko ini belum memiliki produk.</p>`;
+        } else {
+          sellerProducts.forEach((prod) => {
+            const isDiscount =
+              parseInt(prod.priceOriginal) > parseInt(prod.priceCurrent);
+            const discountPercentage = isDiscount
+              ? Math.round(
+                  ((parseInt(prod.priceOriginal) -
+                    parseInt(prod.priceCurrent)) /
+                    parseInt(prod.priceOriginal)) *
+                    100
+                )
+              : 0;
+            const discountHtml = isDiscount
+              ? `<div class="discount-badge">${discountPercentage}% OFF</div>`
+              : "";
+
+            const card = document.createElement("div");
+            card.className = "product-card";
+            card.setAttribute("onclick", `showDetail(${prod.id})`);
+            card.innerHTML = `
+                        <div class="product-image-container">
+                            <img src="${prod.image}" alt="${
+              prod.title
+            }" class="product-image">
+                            ${discountHtml}
+                        </div>
+                        <div class="product-info">
+                            <div class="product-title">${prod.title}</div>
+                            <div>
+                                <span class="product-price-current">${formatPrice(
+                                  prod.priceCurrent
+                                )}</span>
+                                ${
+                                  isDiscount
+                                    ? `<span class="product-price-original">${formatPrice(
+                                        prod.priceOriginal
+                                      )}</span>`
+                                    : ""
+                                }
+                            </div>
+                            <div class="product-meta">
+                                <span class="product-rating">
+                                    ${getStarsHtml(prod.rating)}
+                                </span>
+                                <span style="font-size: 10px; color: var(--text-gray);">${
+                                  prod.soldCount
+                                } Terjual</span>
+                            </div>
+                        </div>
+                    `;
+            productList.appendChild(card);
+          });
+        }
+
+        closeAllScreens();
+        document.getElementById("home-screen").style.display = "none";
+
+        const sellerDetailScreen = document.getElementById(
+          "seller-detail-screen"
+        );
+        sellerDetailScreen.style.display = "block";
+        setTimeout(() => {
+          sellerDetailScreen.style.transform = "translateX(0)";
+          sellerDetailScreen.classList.add("active");
+        }, 50);
+
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((item) => item.classList.remove("active"));
+        window.scrollTo(0, 0);
+      }
+
+      // --- Cart Logic (No change) ---
+      function updateCartCount() {
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const elements = [document.getElementById("nav-cart-count")];
+        elements.forEach((el) => {
+          el.innerText = count;
+          el.style.display = count > 0 ? "flex" : "none";
+        });
+      }
+
+      function addToCart() {
+        if (currentUsername === "Guest") {
+          alert("Silakan Login/Daftar untuk menambahkan ke keranjang.");
+          return;
+        }
+
+        if (!currentProductDetailId) return;
+
+        const product = products.find((p) => p.id === currentProductDetailId);
+        if (!product) return;
+
+        const existingItemIndex = cart.findIndex(
+          (item) => item.id === currentProductDetailId
+        );
+
+        if (existingItemIndex !== -1) {
+          cart[existingItemIndex].quantity += 1;
+        } else {
+          cart.push({
+            id: product.id,
+            title: product.title,
+            price: parseInt(product.priceCurrent),
+            image: product.image,
+            quantity: 1,
+          });
+        }
+
+        localStorage.setItem("beastCart", JSON.stringify(cart));
+        updateCartCount();
+        alert(`${product.title} telah ditambahkan ke keranjang!`);
+        closeDetailScreen();
+        goHome();
+      }
+
+      function buyNow() {
+        if (currentUsername === "Guest") {
+          alert("Silakan Login/Daftar untuk membeli.");
+          return;
+        }
+
+        if (!currentProductDetailId) return;
+
+        const product = products.find((p) => p.id === currentProductDetailId);
+        if (!product) return;
+
+        cart = [
+          {
+            id: product.id,
+            title: product.title,
+            price: parseInt(product.priceCurrent),
+            image: product.image,
+            quantity: 1,
+          },
+        ];
+        localStorage.setItem("beastCart", JSON.stringify(cart));
+        updateCartCount();
+
+        openCartModal();
+      }
+
+      function openCartModal() {
+        if (currentUsername === "Guest") {
+          alert("Silakan Login/Daftar untuk melihat keranjang.");
+          return;
+        }
+
+        closeAllScreens();
+
+        const modal = document.getElementById("cart-modal");
+        modal.style.display = "flex";
+        setTimeout(() => modal.classList.add("open"), 10); // Menambahkan sedikit delay untuk memastikan 'display:flex' aktif sebelum transisi
+
+        renderCartItems();
+      }
+
+      function closeCartModal() {
+        const modal = document.getElementById("cart-modal");
+        modal.classList.remove("open");
+        setTimeout(() => {
+          modal.style.display = "none";
+        }, 300);
+
+        if (
+          !document.getElementById("home-screen").classList.contains("fade-in")
+        ) {
+          document.getElementById("nav-home").classList.add("active");
+        }
+      }
+
+      function renderCartItems() {
+        const list = document.getElementById("cart-items-list");
+        const totalEl = document.getElementById("cart-total-price");
+        const emptyMsg = document.getElementById("empty-cart-msg");
+
+        list.innerHTML = "";
+        let totalPrice = 0;
+
+        if (cart.length === 0) {
+          emptyMsg.style.display = "block";
+          totalEl.innerText = formatPrice(0);
+          return;
+        }
+        emptyMsg.style.display = "none";
+
+        cart.forEach((item) => {
+          const itemTotal = item.price * item.quantity;
+          totalPrice += itemTotal;
+
+          const div = document.createElement("div");
+          div.className = "cart-item";
+          div.innerHTML = `
+                     <div class="cart-item-details">
+                         <img src="${item.image}" alt="${item.title}">
+                         <div>
+                             <div style="font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">${
+                               item.title
+                             }</div>
+                             <div style="color: var(--primary-yellow); font-size: 12px;">${formatPrice(
+                               item.price
+                             )}</div>
+                         </div>
+                     </div>
+                     <div class="cart-item-quantity">
+                         <button onclick="updateQuantity(${
+                           item.id
+                         }, -1)">-</button>
+                         <span style="margin: 0 10px; font-weight: bold;">${
+                           item.quantity
+                         }</span>
+                         <button onclick="updateQuantity(${
+                           item.id
+                         }, 1)">+</button>
+                         <i class="fa-solid fa-trash" style="color: var(--error-red); margin-left: 10px; cursor: pointer;" onclick="updateQuantity(${
+                           item.id
+                         }, -${item.quantity})"></i>
+                     </div>
+                 `;
+          list.appendChild(div);
+        });
+
+        totalEl.innerText = formatPrice(totalPrice);
+        updateCartCount();
+      }
+
+      function updateQuantity(id, change) {
+        const itemIndex = cart.findIndex((item) => item.id === id);
+        if (itemIndex === -1) return;
+
+        cart[itemIndex].quantity += change;
+
+        if (cart[itemIndex].quantity <= 0) {
+          cart.splice(itemIndex, 1);
+        }
+
+        localStorage.setItem("beastCart", JSON.stringify(cart));
+        renderCartItems();
+      }
+
+      function checkout() {
+        if (cart.length === 0) {
+          alert("Keranjang Anda kosong!");
+          return;
+        }
+
+        if (
+          confirm(
+            `Total ${formatPrice(
+              cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+            )}. Lanjutkan Checkout?`
+          )
+        ) {
+          const newOrder = {
+            id: Date.now(),
+            username: currentUsername,
+            items: [...cart],
+            total: cart.reduce(
+              (sum, item) => sum + item.price * item.quantity,
+              0
+            ),
+            date: new Date().toLocaleDateString("id-ID"),
+            status: "Completed",
+          };
+          orders.push(newOrder);
+          localStorage.setItem("beastOrders", JSON.stringify(orders));
+
+          cart.forEach((item) => {
+            const product = products.find((p) => p.id === item.id);
+            if (product) {
+              const seller = stores.find((s) => s.id === product.sellerId);
+              if (seller) {
+                seller.totalSales =
+                  (seller.totalSales || 0) + item.price * item.quantity;
+              }
+            }
+          });
+          localStorage.setItem("beastStores", JSON.stringify(stores));
+
+          cart = [];
+          localStorage.setItem("beastCart", JSON.stringify(cart));
+
+          closeCartModal();
+          alert("Checkout berhasil! Terima kasih telah berbelanja.");
+        }
+      }
+
+      // --- Chat Logic (No change) ---
+      function updateChatCount() {
+        if (currentUsername === "Guest") return;
+        const unreadCount = chats.filter((chat) => {
+          // Determine the key for the chat, ensure we find the right conversation
+          const chatKey = getChatKey(chat.sender, chat.recipient);
+          const currentUserKey = getChatKey(
+            currentUsername,
+            chat.recipient === currentUsername ? chat.sender : chat.recipient
+          );
+
+          if (chatKey !== currentUserKey) return false;
+
+          const isRecipient = chat.recipient === currentUsername;
+          return (
+            isRecipient &&
+            chat.messages.some(
+              (msg) => msg.receiver === currentUsername && !msg.read
+            )
+          );
+        }).length;
+
+        const countEl = document.getElementById("nav-chat-count");
+        countEl.innerText = unreadCount;
+        countEl.style.display = unreadCount > 0 ? "flex" : "none";
+      }
+
+      function openChatModal() {
+        if (currentUsername === "Guest") {
+          alert("Silakan Login/Daftar untuk menggunakan fitur Chat.");
+          return;
+        }
+
+        closeAllScreens();
+        document.getElementById("chat-modal").style.display = "flex";
+
+        showListView();
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((item) => item.classList.remove("active"));
+        document.getElementById("nav-chat").classList.add("active");
+      }
+
+      function closeChatModal() {
+        document.getElementById("chat-modal").style.display = "none";
+      }
+
+      function showListView() {
+        document.getElementById("chat-back-btn").style.display = "none";
+        document.getElementById("chat-title-display").innerText = "Pesan";
+        document.getElementById("chat-conversation-view").style.display =
+          "none";
+        document.getElementById("chat-list-view").style.display = "block";
+        currentChatRecipient = null;
+        renderChatList();
+      }
+
+      function showConversationView(recipientUsername) {
+        currentChatRecipient = recipientUsername;
+        document.getElementById("chat-back-btn").style.display = "block";
+
+        const store = stores.find((s) => s.owner === recipientUsername);
+        document.getElementById("chat-title-display").innerText = store
+          ? store.name
+          : recipientUsername;
+
+        document.getElementById("chat-list-view").style.display = "none";
+        document.getElementById("chat-conversation-view").style.display =
+          "flex";
+
+        let chat = chats.find(
+          (c) =>
+            getChatKey(c.sender, c.recipient) ===
+            getChatKey(currentUsername, recipientUsername)
+        );
+        if (chat) {
+          chat.messages.forEach((msg) => {
+            if (msg.receiver === currentUsername) {
+              msg.read = true;
+            }
+          });
+          localStorage.setItem("beastChats", JSON.stringify(chats));
+        }
+
+        renderConversation();
+        updateChatCount();
+      }
+
+      function renderChatList() {
+        const container = document.getElementById("chat-list-container");
+        container.innerHTML = "";
+
+        // Get all partners user has chatted with
+        const partners = new Set();
+        chats.forEach((chat) => {
+          if (chat.sender === currentUsername) partners.add(chat.recipient);
+          if (chat.recipient === currentUsername) partners.add(chat.sender);
+        });
+
+        const activeChats = Array.from(partners)
+          .map((partner) => {
+            return chats.find(
+              (c) =>
+                getChatKey(c.sender, c.recipient) ===
+                getChatKey(currentUsername, partner)
+            );
+          })
+          .filter((c) => c);
+
+        if (activeChats.length === 0) {
+          container.innerHTML =
+            '<p style="text-align:center; color:var(--text-gray); padding: 20px;">Belum ada percakapan.</p>';
+          return;
+        }
+
+        activeChats.sort((a, b) => {
+          const aLastTime =
+            a.messages.length > 0
+              ? a.messages[a.messages.length - 1].timestamp
+              : 0;
+          const bLastTime =
+            b.messages.length > 0
+              ? b.messages[b.messages.length - 1].timestamp
+              : 0;
+          return bLastTime - aLastTime;
+        });
+
+        activeChats.forEach((chat) => {
+          const partner =
+            chat.sender === currentUsername ? chat.recipient : chat.sender;
+          const lastMessage = chat.messages[chat.messages.length - 1];
+          const unreadCount = chat.messages.filter(
+            (msg) => msg.receiver === currentUsername && !msg.read
+          ).length;
+
+          const store = stores.find((s) => s.owner === partner);
+          const title = store ? store.name : partner;
+
+          const ppUrl =
+            userProfileData[partner]?.profilePicUrl || defaultProfilePic;
+
+          const item = document.createElement("div");
+          item.className = "chat-list-item";
+          item.setAttribute("onclick", `showConversationView('${partner}')`);
+          item.innerHTML = `
+                    <img src="${ppUrl}" class="chat-user-avatar">
+                    <div class="chat-details">
+                        <div class="username" style="color:${
+                          unreadCount > 0
+                            ? "var(--primary-yellow)"
+                            : "var(--text-white)"
+                        }">${title}</div>
+                        <div class="last-message">${
+                          lastMessage
+                            ? (lastMessage.sender === currentUsername
+                                ? "Anda: "
+                                : "") + lastMessage.text
+                            : "Mulai chat..."
+                        }</div>
+                    </div>
+                    ${
+                      unreadCount > 0
+                        ? `<span class="chat-unread-badge">${unreadCount}</span>`
+                        : ""
+                    }
+                `;
+          container.appendChild(item);
+        });
+      }
+
+      function renderConversation() {
+        const window = document.getElementById("chat-window");
+        window.innerHTML = "";
+        const recipient = currentChatRecipient;
+
+        let chat = chats.find(
+          (c) =>
+            getChatKey(c.sender, c.recipient) ===
+            getChatKey(currentUsername, recipient)
+        );
+
+        if (!chat) {
+          window.innerHTML =
+            '<p style="text-align:center; color:var(--text-gray); padding: 20px;">Mulai percakapan baru.</p>';
+          return;
+        }
+
+        chat.messages.forEach((msg) => {
+          const div = document.createElement("div");
+          div.className =
+            "message-bubble " +
+            (msg.sender === currentUsername
+              ? "message-sent"
+              : "message-received");
+          div.innerText = msg.text;
+
+          if (msg.sender === currentUsername) {
+            const status = document.createElement("span");
+            status.style.fontSize = "10px";
+            status.style.marginLeft = "10px";
+            status.style.color = msg.read ? "#3498DB" : "#777";
+            status.innerHTML = msg.read
+              ? '<i class="fa-solid fa-check-double"></i>'
+              : '<i class="fa-solid fa-check"></i>';
+            div.appendChild(status);
+          }
+
+          window.appendChild(div);
+        });
+
+        window.scrollTop = window.scrollHeight;
+      }
+
+      function sendMessage() {
+        const input = document.getElementById("message-input");
+        const text = input.value.trim();
+
+        if (!text || !currentChatRecipient) return;
+
+        let chat = chats.find(
+          (c) =>
+            getChatKey(c.sender, c.recipient) ===
+            getChatKey(currentUsername, currentChatRecipient)
+        );
+
+        if (!chat) {
+          chat = {
+            sender: currentUsername,
+            recipient: currentChatRecipient,
+            messages: [],
+          };
+          chats.push(chat);
+        }
+
+        const newMessage = {
+          text: text,
+          sender: currentUsername,
+          receiver: currentChatRecipient,
+          timestamp: Date.now(),
+          read: false,
+        };
+        chat.messages.push(newMessage);
+
+        localStorage.setItem("beastChats", JSON.stringify(chats));
+        input.value = "";
+
+        renderConversation();
+
+        // Auto-reply for default users for demonstration
+        if (["ONANA", "developer"].includes(currentChatRecipient)) {
+          setTimeout(() => {
+            const autoReply = {
+              text: "Ini adalah balasan otomatis dari sistem. Terima kasih atas pesan Anda!",
+              sender: currentChatRecipient,
+              receiver: currentUsername,
+              timestamp: Date.now(),
+              read: false,
+            };
+
+            let replyChat = chats.find(
+              (c) =>
+                getChatKey(c.sender, c.recipient) ===
+                getChatKey(currentUsername, currentChatRecipient)
+            );
+            if (replyChat) {
+              replyChat.messages.push(autoReply);
+              localStorage.setItem("beastChats", JSON.stringify(chats));
+              // Only re-render if the user is still on that specific conversation
+              if (
+                currentChatRecipient === replyChat.sender ||
+                currentChatRecipient === replyChat.recipient
+              ) {
+                renderConversation();
+              }
+              updateChatCount();
+            }
+          }, 1500);
+        }
+      }
+
+      function startChatFromProduct() {
+        if (currentUsername === "Guest") {
+          alert("Silakan Login/Daftar untuk memulai Chat.");
+          return;
+        }
+
+        const product = products.find((p) => p.id === currentProductDetailId);
+        if (!product) return;
+
+        const seller = stores.find((s) => s.id === product.sellerId);
+        if (!seller) return;
+
+        if (seller.owner === currentUsername) {
+          alert("Anda tidak bisa chat dengan toko Anda sendiri.");
+          return;
+        }
+
+        closeAllScreens();
+        openChatModal();
+        showConversationView(seller.owner);
+      }
+
+      function searchUsersForChat(query) {
+        const resultsContainer = document.getElementById("chat-search-results");
+        resultsContainer.innerHTML = "";
+        const term = query.toLowerCase();
+
+        if (term.length < 2) return;
+
+        const uniqueUsers = Array.from(
+          new Set(registeredUsers.map((u) => u.username))
+        );
+        const filteredUsers = uniqueUsers.filter(
+          (user) =>
+            user !== currentUsername && user.toLowerCase().includes(term)
+        );
+
+        filteredUsers.forEach((user) => {
+          const store = stores.find((s) => s.owner === user);
+          const title = store ? store.name : user;
+          const role = getUserRole(user);
+          const ppUrl =
+            userProfileData[user]?.profilePicUrl || defaultProfilePic;
+
+          const resultItem = document.createElement("div");
+          resultItem.className = "chat-search-result";
+          resultItem.setAttribute("onclick", `showConversationView('${user}')`);
+          resultItem.innerHTML = `
+                      <img src="${ppUrl}" class="chat-user-avatar">
+                      <div class="chat-details">
+                          <div class="username">${title}</div>
+                          <div class="last-message" style="font-size: 10px; color: ${
+                            role === "Seller"
+                              ? "var(--role-seller-bg)"
+                              : "var(--text-gray)"
+                          }; font-weight: bold;">(${role})</div>
+                      </div>
+                 `;
+          resultsContainer.appendChild(resultItem);
+        });
+      }
+
+      // Panggil initApp saat script dimuat
+      initApp();
+    </script>
+  </body>
+</html>
